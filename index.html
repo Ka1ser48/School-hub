@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Hub</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6fb;
+    color: #172033;
+}
+
+header {
+    background: #4f46e5;
+    color: white;
+    padding: 25px;
+}
+
+header h1 {
+    margin: 0;
+}
+
+header p {
+    margin-bottom: 0;
+    opacity: .9;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background: white;
+    overflow-x: auto;
+}
+
+nav button {
+    border: none;
+    background: #eef2ff;
+    color: #3730a3;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+nav button:hover {
+    background: #ddd6fe;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.05);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.event,
+.notice,
+.club,
+.idea {
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 14px;
+    margin-top: 12px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.primary {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 10px;
+}
+
+.delete {
+    background: #fee2e2;
+    color: #991b1b;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.vote {
+    background: #eef2ff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    margin: 7px 0 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+.hidden {
+    display: none;
+}
+
+.admin-box {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    padding: 15px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 9px;
+    background: #eef2ff;
+    color: #4338ca;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏫 School Hub</h1>
+    <p>Всё необходимое для школьной жизни — в одном месте</p>
+</header>
+
+<nav>
+    <button onclick="showPage('home')">🏠 Главная</button>
+    <button onclick="showPage('calendar')">📅 Календарь</button>
+    <button onclick="showPage('news')">📢 Объявления</button>
+    <button onclick="showPage('clubs')">🎯 Кружки</button>
+    <button onclick="showPage('ideas')">💡 Идеи</button>
+    <button onclick="openAdmin()">👑 Админ</button>
+</nav>
+
+<div class="container">
+
+<!-- ГЛАВНАЯ -->
+
+<section id="home">
+
+    <div class="card">
+        <h2>Добро пожаловать! 👋</h2>
+        <p>
+            Здесь ученики смогут узнать школьные новости,
+            мероприятия, кружки и предложить свои идеи.
+        </p>
+    </div>
+
+    <div class="grid">
+
+        <div class="card">
+            <h3>📅 Ближайшие события</h3>
+            <div id="homeEvents"></div>
+        </div>
+
+        <div class="card">
+            <h3>📢 Последние объявления</h3>
+            <div id="homeNews"></div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- КАЛЕНДАРЬ -->
+
+<section id="calendar" class="hidden">
+
+    <div class="card">
+
+        <h2>📅 Школьный календарь</h2>
+
+        <div id="adminCalendarButton"></div>
+
+        <div id="events"></div>
+
+    </div>
+
+</section>
+
+
+<!-- ОБЪЯВЛЕНИЯ -->
+
+<section id="news" class="hidden">
+
+    <div class="card">
+
+        <h2>📢 Объявления</h2>
+
+        <div id="adminNewsButton"></div>
+
+        <div id="newsList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- КРУЖКИ -->
+
+<section id="clubs" class="hidden">
+
+    <div class="card">
+
+        <h2>🎯 Кружки и секции</h2>
+
+        <div id="adminClubButton"></div>
+
+        <div id="clubList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- ИДЕИ -->
+
+<section id="ideas" class="hidden">
+
+    <div class="card">
+
+        <h2>💡 Идеи учеников</h2>
+
+        <p>
+            Здесь каждый ученик может предложить идею
+            по улучшению школы.
+        </p>
+
+        <button class="primary" onclick="showIdeaForm()">
+            ＋ Предложить идею
+        </button>
+
+        <div id="ideaForm" class="hidden">
+
+            <h3>Новая идея</h3>
+
+            <input
+                id="ideaTitle"
+                placeholder="Название идеи"
+            >
+
+            <textarea
+                id="ideaText"
+                placeholder="Расскажи подробнее..."
+            ></textarea>
+
+            <button class="primary" onclick="addIdea()">
+                Опубликовать
+            </button>
+
+        </div>
+
+        <div id="ideasList"></div>
+
+    </div>
+
+</section>
+
+
+<!-- АДМИН -->
+
+<section id="admin" class="hidden">
+
+    <div class="card">
+
+        <h2>👑 Панель администратора</h2>
+
+        <p>
+            Только администратор может управлять
+            событиями, объявлениями и кружками.
+        </p>
+
+        <button class="primary" onclick="showAdminForm('event')">
+            ＋ Добавить событие
+        </button>
+
+        <button class="primary" onclick="showAdminForm('news')">
+            ＋ Добавить объявление
+        </button>
+
+        <button class="primary" onclick="showAdminForm('club')">
+            ＋ Добавить кружок
+        </button>
+
+    </div>
+
+
+    <!-- ФОРМА СОБЫТИЯ -->
+
+    <div id="eventForm" class="card hidden">
+
+        <h3>📅 Новое событие</h3>
+
+        <input id="eventTitle"
+               placeholder="Название события">
+
+        <input id="eventDate"
+               type="date">
+
+        <input id="eventTime"
+               type="time">
+
+        <input id="eventDescription"
+               placeholder="Описание">
+
+        <button class="primary"
+                onclick="addEvent()">
+            Добавить событие
+        </button>
+
+    </div>
+
+
+    <!-- ФОРМА ОБЪЯВЛЕНИЯ -->
+
+    <div id="newsForm" class="card hidden">
+
+        <h3>📢 Новое объявление</h3>
+
+        <input id="newsTitle"
+               placeholder="Заголовок">
+
+        <textarea id="newsText"
+                  placeholder="Текст объявления"></textarea>
+
+        <button class="primary"
+                onclick="addNews()">
+            Опубликовать
+        </button>
+
+    </div>
+
+
+    <!-- ФОРМА КРУЖКА -->
+
+    <div id="clubForm" class="card hidden">
+
+        <h3>🎯 Новый кружок</h3>
+
+        <input id="clubTitle"
+               placeholder="Название кружка">
+
+        <input id="clubTeacher"
+               placeholder="Руководитель">
+
+        <input id="clubSchedule"
+               placeholder="Например: Вт и Чт, 15:30">
+
+        <input id="clubRoom"
+               placeholder="Кабинет">
+
+        <textarea id="clubDescription"
+                  placeholder="Описание"></textarea>
+
+        <button class="primary"
+                onclick="addClub()">
+            Добавить кружок
+        </button>
+
+    </div>
+
+</section>
+
+</div>
+
+<footer>
+    School Hub © 2026
+</footer>
+
+
+<script>
+
+/* =========================
+   ДАННЫЕ
+========================= */
+
+let isAdmin = false;
+
+let events = [
+    {
+        title: "Школьная линейка",
+        date: "2026-09-25",
+        time: "08:00",
+        description: "Общая школьная линейка"
+    }
+];
+
+let news = [
+    {
+        title: "Добро пожаловать!",
+        text: "School Hub открыт для учеников."
+    }
+];
+
+let clubs = [
+    {
+        title: "Шахматный клуб",
+        teacher: "Учитель шахмат",
+        schedule: "Вт и Чт, 15:30",
+        room: "204",
+        description: "Тренировки и школьные турниры."
+    }
+];
+
+let ideas = [
+    {
+        title: "Больше мест для зарядки",
+        text: "Установить дополнительные зарядные станции.",
+        votes: 5
+    }
+];
+
+
+/* =========================
+   ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ
+========================= */
+
+function showPage(page) {
+
+    document.querySelectorAll("section").forEach(section => {
+        section.classList.add("hidden");
+    });
+
+    document.getElementById(page).classList.remove("hidden");
+
+}
+
+
+/* =========================
+   АДМИНИСТРАТОР
+========================= */
+
+function openAdmin() {
+
+    if (isAdmin) {
+        showPage("admin");
+        return;
+    }
+
+    let password = prompt("Введите пароль администратора:");
+
+    if (password === "1234") {
+
+        isAdmin = true;
+
+        alert("Добро пожаловать, администратор!");
+
+        showPage("admin");
+
+        render();
+
+    } else {
+
+        alert("Неверный пароль!");
+
+    }
+
+}
+
+
+/* =========================
+   ФОРМЫ АДМИНА
+========================= */
+
+function showAdminForm(type) {
+
+    document
+        .querySelectorAll("#admin .card")
+        .forEach(card => {
+
+            if (
+                card.id === "eventForm" ||
+                card.id === "newsForm" ||
+                card.id === "clubForm"
+            ) {
+                card.classList.add("hidden");
+            }
+
+        });
+
+    document
+        .getElementById(type + "Form")
+        .classList.remove("hidden");
+
+}
+
+
+/* =========================
+   СОБЫТИЯ
+========================= */
+
+function addEvent() {
+
+    if (!isAdmin) return;
+
+    let title =
+        document.getElementById("eventTitle").value;
+
+    let date =
+        document.getElementById("eventDate").value;
+
+    let time =
+        document.getElementById("eventTime").value;
+
+    let description =
+        document.getElementById("eventDescription").value;
+
+    if (!title || !date) {
+
+        alert("Заполни название и дату!");
+
+        return;
+
+    }
+
+    events.push({
+        title,
+        date,
+        time,
+        description
+    });
+
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventDate").value = "";
+    document.getElementById("eventTime").value = "";
+    document.getElementById("eventDescription").value = "";
+
+    render();
+
+}
+
+
+/* =========================
+   ОБЪЯВЛЕНИЯ
+========================= */
+
+function addNews() {
+
+    if (!isAdmin) return;
+
+    let title =
+        document.getElementById("newsTitle").value;
+
+    let text =
+        document.getElementById("newsText").value;
+
+    if (!title || !text) {
+
+        alert("Заполни все поля!");
+
+        return;
+
+    }
+
+    news.unshift({
+        title,
+        text
+    });
+
+    document.getElementById("newsTitle").value = "";
+    document.getElementById("newsText").value = "";
+
+    render();
+
+}
+
+
+/* =========================
+   КРУЖКИ
+========================= */
+
+function addClub() {
+
+    if (!isAdmin) return;
+
+    let title =
+        document.getElementById("clubTitle").value;
+
+    let teacher =
+        document.getElementById("clubTeacher").value;
+
+    let schedule =
+        document.getElementById("clubSchedule").value;
+
+    let room =
+        document.getElementById("clubRoom").value;
+
+    let description =
+        document.getElementById("clubDescription").value;
+
+    if (!title) {
+
+        alert("Укажи название кружка!");
+
+        return;
+
+    }
+
+    clubs.push({
+        title,
+        teacher,
+        schedule,
+        room,
+        description
+    });
+
+    document.getElementById("clubTitle").value = "";
+    document.getElementById("clubTeacher").value = "";
+    document.getElementById("clubSchedule").value = "";
+    document.getElementById("clubRoom").value = "";
+    document.getElementById("clubDescription").value = "";
+
+    render();
+
+}
+
+
+/* =========================
+   ИДЕИ
+========================= */
+
+function showIdeaForm() {
+
+    document
+        .getElementById("ideaForm")
+        .classList.toggle("hidden");
+
+}
+
+
+function addIdea() {
+
+    let title =
+        document.getElementById("ideaTitle").value;
+
+    let text =
+        document.getElementById("ideaText").value;
+
+    if (!title || !text) {
+
+        alert("Заполни название и описание!");
+
+        return;
+
+    }
+
+    ideas.unshift({
+        title,
+        text,
+        votes: 0
+    });
+
+    document.getElementById("ideaTitle").value = "";
+    document.getElementById("ideaText").value = "";
+
+    render();
+
+}
+
+
+function vote(index) {
+
+    ideas[index].votes++;
+
+    render();
+
+}
+
+
+/* =========================
+   УДАЛЕНИЕ
+========================= */
+
+function deleteEvent(index) {
+
+    if (!isAdmin) return;
+
+    events.splice(index, 1);
+
+    render();
+
+}
+
+
+function deleteNews(index) {
+
+    if (!isAdmin) return;
+
+    news.splice(index, 1);
+
+    render();
+
+}
+
+
+function deleteClub(index) {
+
+    if (!isAdmin) return;
+
+    clubs.splice(index, 1);
+
+    render();
+
+}
+
+
+/* =========================
+   ОТОБРАЖЕНИЕ
+========================= */
+
+function render() {
+
+
+    /* СОБЫТИЯ */
+
+    let eventsHTML = "";
+
+    events.forEach((event, index) => {
+
+        eventsHTML += `
+
+        <div class="event">
+
+            <span class="badge">
+                📅 ${event.date}
+            </span>
+
+            <h3>${event.title}</h3>
+
+            <p>
+                ${event.time || ""}
+            </p>
+
+            <p>
+                ${event.description || ""}
+            </p>
+
+            ${
+                isAdmin
+                ?
+                `<button
+                    class="delete"
+                    onclick="deleteEvent(${index})">
+                    Удалить
+                </button>`
+                :
+                ""
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById("events").innerHTML =
+        eventsHTML || "<p>Событий пока нет.</p>";
+
+    document.getElementById("homeEvents").innerHTML =
+        events.slice(0,3).map(event => `
+
+            <div class="event">
+
+                <strong>
+                    ${event.title}
+                </strong>
+
+                <p>
+                    📅 ${event.date}
+                </p>
+
+            </div>
+
+        `).join("");
+
+
+    /* НОВОСТИ */
+
+    let newsHTML = "";
+
+    news.forEach((item, index) => {
+
+        newsHTML += `
+
+        <div class="notice">
+
+            <span class="badge">
+                📢 Объявление
+            </span>
+
+            <h3>
+                ${item.title}
+            </h3>
+
+            <p>
+                ${item.text}
+            </p>
+
+            ${
+                isAdmin
+                ?
+                `<button
+                    class="delete"
+                    onclick="deleteNews(${index})">
+                    Удалить
+                </button>`
+                :
+                ""
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById("newsList").innerHTML =
+        newsHTML;
+
+    document.getElementById("homeNews").innerHTML =
+        news.slice(0,2).map(item => `
+
+            <div class="notice">
+
+                <strong>
+                    ${item.title}
+                </strong>
+
+                <p>
+                    ${item.text}
+                </p>
+
+            </div>
+
+        `).join("");
+
+
+    /* КРУЖКИ */
+
+    let clubsHTML = "";
+
+    clubs.forEach((club, index) => {
+
+        clubsHTML += `
+
+        <div class="club">
+
+            <h3>
+                🎯 ${club.title}
+            </h3>
+
+            <p>
+                👨‍🏫 ${club.teacher}
+            </p>
+
+            <p>
+                🕐 ${club.schedule}
+            </p>
+
+            <p>
+                🚪 Кабинет ${club.room}
+            </p>
+
+            <p>
+                ${club.description}
+            </p>
+
+            ${
+                isAdmin
+                ?
+                `<button
+                    class="delete"
+                    onclick="deleteClub(${index})">
+                    Удалить
+                </button>`
+                :
+                ""
+            }
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById("clubList").innerHTML =
+        clubsHTML;
+
+
+    /* ИДЕИ */
+
+    let ideasHTML = "";
+
+    ideas.forEach((idea, index) => {
+
+        ideasHTML += `
+
+        <div class="idea">
+
+            <span class="badge">
+                💡 Идея ученика
+            </span>
+
+            <h3>
+                ${idea.title}
+            </h3>
+
+            <p>
+                ${idea.text}
+            </p>
+
+            <button
+                class="vote"
+                onclick="vote(${index})">
+
+                👍 ${idea.votes}
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById("ideasList").innerHTML =
+        ideasHTML;
+
+
+    /* КНОПКИ АДМИНА */
+
+    if (isAdmin) {
+
+        document.getElementById(
+            "adminCalendarButton"
+        ).innerHTML =
+            "👑 Вы вошли как администратор.";
+
+        document.getElementById(
+            "adminNewsButton"
+        ).innerHTML =
+            "👑 Вы можете управлять объявлениями.";
+
+        document.getElementById(
+            "adminClubButton"
+        ).innerHTML =
+            "👑 Вы можете управлять кружками.";
+
+    }
+
+}
+
+
+/* ЗАПУСК */
+
+render();
+
+</script>
+
+</body>
+</html>
